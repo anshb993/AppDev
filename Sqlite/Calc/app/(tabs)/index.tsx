@@ -1,98 +1,89 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { initCalculatorDB, getCalculatorDB } from '../../src/db';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+type HistoryItem = {
+  id: number;
+  expression: string;
+  result: string;
+};
 
-export default function HomeScreen() {
+export default function Calculator() {
+  const [input, setInput] = useState('');
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const db = await initCalculatorDB();
+      const rows = await db.getAllAsync<HistoryItem>('SELECT * FROM history ORDER BY id DESC');
+      setHistory(rows);
+    };
+    load();
+  }, []);
+
+  const handlePress = (val: string) => setInput(prev => prev + val);
+
+  const calculate = async () => {
+    try {
+      const result = eval(input).toString();
+      const db = getCalculatorDB();
+      await db.runAsync('INSERT INTO history (expression, result) VALUES (?, ?)', [input, result]);
+      const rows = await db.getAllAsync<HistoryItem>('SELECT * FROM history ORDER BY id DESC');
+      setHistory(rows);
+      setInput(result);
+    } catch {
+      setInput('Error');
+    }
+  };
+
+  const clear = () => setInput('');
+
+  const clearHistory = async () => {
+    const db = getCalculatorDB();
+    await db.execAsync('DELETE FROM history');
+    setHistory([]);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <View style={styles.container}>
+      <Text style={styles.display}>{input || '0'}</Text>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <View style={styles.buttons}>
+        {['7','8','9','/','4','5','6','*','1','2','3','-','0','.','=','+'].map(btn => (
+          <TouchableOpacity
+            key={btn}
+            style={styles.btn}
+            onPress={() => (btn === '=' ? calculate() : handlePress(btn))}
+          >
+            <Text style={styles.btnText}>{btn}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <TouchableOpacity style={styles.clearBtn} onPress={clear}>
+        <Text>Clear</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.clearBtn} onPress={clearHistory}>
+        <Text>Clear History</Text>
+      </TouchableOpacity>
+
+      <FlatList
+        data={history}
+        keyExtractor={item => item.id.toString()}
+        renderItem={({ item }) => (
+          <Text style={styles.historyItem}>{item.expression} = {item.result}</Text>
+        )}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
+  display: { fontSize: 32, textAlign: 'right', marginBottom: 10 },
+  buttons: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
+  btn: { width: '22%', margin: '1%', padding: 20, backgroundColor: '#eee', alignItems: 'center', borderRadius: 8 },
+  btnText: { fontSize: 20 },
+  clearBtn: { backgroundColor: '#ddd', padding: 10, marginTop: 10, borderRadius: 6, alignItems: 'center' },
+  historyItem: { fontSize: 16, marginVertical: 2 },
 });
