@@ -3,9 +3,9 @@ import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithCredential, 
 import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Button, Dimensions, StyleSheet, Text, View } from "react-native";
+import AnonAuth from './anonAuth';
 import EmailAuth from './emailAuth';
 import PhoneAuth from './PhoneAuth';
-
 GoogleSignin.configure({
     webClientId: '201245250315-ef0o1b88u900q776gcbv257cqdco8339.apps.googleusercontent.com'
 });
@@ -89,7 +89,7 @@ const AppAuth: React.FC = () => {
         return (
             <View style={styles.container}>
                 <Text style={styles.welcomeText}>
-                    Welcome, {user.email || user.displayName || 'Authenticated User'}!
+                    Welcome, {user.email || user.displayName || 'Anon User'}!
                 </Text>
                 <Text style={{ marginBottom: 20 }}>
                     UID: {user.uid}
@@ -114,7 +114,6 @@ const AppAuth: React.FC = () => {
             color={GoogleSigninButton.Color.Dark}
             onPress={signInWithGoogle}
             disabled={signingIn}
-            // Ensure proper spacing above the next section
             style={{ marginBottom: 10 }} 
         />
         {signingIn && <ActivityIndicator />}
@@ -124,11 +123,18 @@ const AppAuth: React.FC = () => {
         {/* 2. EMAIL & PASSWORD */}
         <EmailAuth /> 
         
-        {/* New divider to separate Email/Password from Phone Auth */}
         <Text style={styles.divider}>— OR —</Text>
         
         {/* 3. PHONE NUMBER AUTH */}
         <PhoneAuth />
+
+        <Text style={styles.divider}>— OR —</Text>
+        <AnonAuth 
+            signingIn={signingIn} 
+            setSigningIn={setSigningIn} 
+        />
+        
+        
 
     </View>
 );
@@ -145,7 +151,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         padding: 150,
         paddingTop: 150,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#fff1fcff',
     },
     header: {
         fontSize: 22,

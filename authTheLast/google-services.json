@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "201245250315-98iebo6n42jobdvugt6k9k1pmi6kir5o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ansh777777777.fucas_auth",
+            "certificate_hash": "a061c4257abb75d60dd913540ebf9ff869fcd004"
+          }
+        },
+        {
           "client_id": "201245250315-nv3961kldfnr4jvusqfd0jmo37dc5ksm.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
