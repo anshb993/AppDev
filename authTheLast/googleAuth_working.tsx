@@ -1,7 +1,7 @@
 import { GoogleAuthProvider, getAuth, onAuthStateChanged, signInWithCredential } from '@react-native-firebase/auth';
 import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Dimensions, View } from "react-native";
 
 
 
@@ -12,7 +12,7 @@ GoogleSignin.configure({
 const GoogleAuth = () => {
     const [initializing, setInitializing] = useState(true);
     const [user, setUser] = useState();
-// @ts-ignore
+
     function handleAuthStateChanged(user) { //ignore ts user error
     setUser(user);
     if (initializing) setInitializing(false);
@@ -47,8 +47,8 @@ const signIn = async () => {
 };
     return (
     <View style={{
-    // width:Dimensions.get('screen').width,
-    // height:Dimensions.get('screen').height,
+    width:Dimensions.get('screen').width,
+    height:Dimensions.get('screen').height,
     justifyContent: "center",
     alignItems: "center"
     }}>
@@ -65,50 +65,3 @@ const signIn = async () => {
 }
 
 export default GoogleAuth
-
-const styles = StyleSheet.create({
-    container: {
-        width: '188%',
-        backgroundColor: '#ffffffff',
-        borderWidth: 1,
-        borderColor: '#ddd',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-        alignItems: "center",
-    },
-    header: {
-        fontSize: 22,
-        fontWeight: 'bold',
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-    input: {
-        width: '200%',
-        height: 40,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 5,
-        backgroundColor: '#ffffffff',
-        paddingHorizontal: 100,
-    },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        width: '50%',
-        marginTop: 0,
-    },
-    divider: {
-        fontSize: 16,
-        color: '#888',
-    },
-    welcomeText: {
-        fontSize: 24,
-        fontWeight: '600',
-        textAlign: 'center',
-    },
-});

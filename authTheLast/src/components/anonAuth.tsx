@@ -34,7 +34,7 @@ const AnonAuth: React.FC<AnonAuthProps> = ({ signingIn, setSigningIn }) => {
                 title={signingIn ? "Entering..." : "Continue as Guest"}
                 onPress={signInAnonymously}
                 disabled={signingIn}
-                color="#60A5FA" 
+                color="#007bff" 
             />
             {signingIn && <ActivityIndicator style={{ marginTop: 5 }} />}
         </View>

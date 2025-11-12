@@ -115,16 +115,16 @@ export default PhoneAuth;
 // ... styles ...
 const styles = StyleSheet.create({
     container: {
-        width: '300%',
-        padding: 20,
-        borderRadius: 10,
+        width: '100%',
+        padding: 28,
+        borderRadius: 8,
         backgroundColor: '#ffffff',
         borderWidth: 1,
         borderColor: '#ddd',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
-        shadowRadius: 3,
+        shadowRadius: 4,
         elevation: 3,
         marginBottom: 10,
         marginTop: 10,

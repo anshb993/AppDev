@@ -1,5 +1,9 @@
-import GoogleAuth from "@/src/components/googleAuth";
 
-export default function App(){
-  return <GoogleAuth/>;
-}
+import React from 'react';
+import AppAuth from '../../src/components/main';
+
+const TabAuthScreen = () => {
+  return <AppAuth />;
+};
+
+export default TabAuthScreen;

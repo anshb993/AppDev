@@ -83,8 +83,8 @@ export default EmailAuth;
 
 const styles = StyleSheet.create({
     container: {
-        width: '300%',
-        padding: 20,
+        width: '208%',
+        padding: 40,
         borderRadius: 10,
         backgroundColor: '#ffffffff',
         borderWidth: 1,
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
-        shadowRadius: 3,
+        shadowRadius: 4,
         elevation: 3,
         marginBottom: 10,
         marginTop: 10,
@@ -109,23 +109,18 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     input: {
-        width: '100%',
+        width: '300%',
         height: 40,
         borderColor: '#ccc',
         borderWidth: 1,
         borderRadius: 5,
         marginBottom: 10,
-        paddingHorizontal: 10,
-        backgroundColor: 'white',
-    },
+        backgroundColor: '#ffffffff',
+        paddingHorizontal: 100,},
     buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        width: '100%',
-        marginTop: 0,
+        justifyContent: 'center',
     },
     divider: {
-        marginVertical: 20,
         fontSize: 16,
         color: '#888',
     },
@@ -133,6 +128,5 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: '600',
         textAlign: 'center',
-        marginBottom: 10,
     },
 });
