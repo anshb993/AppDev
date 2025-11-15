@@ -4,9 +4,9 @@ import SignInScreen from "../../src/screens/SignInScreen";
 import SignUpScreen from "../../src/screens/SignUpScreen";
 import GoogleAuth from "../../src/screens/googleAuth";
 import HomeScreen from '../HomeScreen/HomeScreen';
+import SearchScreen from "../HomeScreen/SearchBox";
 import AboutScreen from "../screens/AboutScreen";
 import { RootStackParamList } from "../types/navigation";
-
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 
@@ -22,6 +22,8 @@ export default function App() {
       <Stack.Screen name="GoogleAuth" component={GoogleAuth} />
       <Stack.Screen name="About" component={AboutScreen} />
       <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Search" component={SearchScreen} />
+
 
     </Stack.Navigator>
     

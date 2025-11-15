@@ -1,18 +1,19 @@
 // src/screens/HomeScreen.tsx
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
+  Modal,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View
 } from 'react-native';
-
 // Types for our drug data
 interface Drug {
   id: string;
@@ -20,15 +21,80 @@ interface Drug {
   description: string;
   price: number;
   isEssential: boolean;
+  precautions?: string;
 }
 
+// --- FULL MOCK EMERGENCY DRUGS LIST ---
+const MOCK_EMERGENCY_DRUGS: Drug[] = [
+  {
+    id: '1',
+    name: 'Low Dose Aspirin Enteric Safety-Coated',
+    description: 'For heart health maintenance.',
+    price: 80.99,
+    isEssential: true,
+    precautions: 'Do not use if allergic to aspirin.'
+  },
+  {
+    id: '2',
+    name: 'Ibuprofen Tablets (200mg)',
+    description: 'Pain reliever and fever reducer.',
+    price: 75.99,
+    isEssential: true,
+    precautions: 'Take with food. Do not exceed recommended dosage.'
+  },
+  {
+    id: '3',
+    name: 'Allergy Relief Antihistamines',
+    description: 'For temporary relief of allergy symptoms.',
+    price: 124.50,
+    isEssential: true,
+    precautions: 'May cause drowsiness. Avoid alcohol.'
+  },
+  {
+    id: '4',
+    name: 'Antacid Chewable Tablets',
+    description: 'For heartburn relief and acid indigestion.',
+    price: 57.99,
+    isEssential: true,
+    precautions: 'Consult doctor if symptoms persist.'
+  },
+  {
+    id: '5',
+    name: 'Antiseptic Cream (Topical)',
+    description: 'For minor cuts, scrapes, and burns.',
+    price: 44.50,
+    isEssential: true,
+    precautions: 'For external use only.'
+  },
+  {
+    id: '6',
+    name: 'Assorted Bandages',
+    description: 'Sterile wound dressing for minor cuts.',
+    price: 39.99,
+    isEssential: true,
+    precautions: 'Change daily.'
+  },
+  {
+    id: '7',
+    name: 'Epinephrine Auto-Injector (EpiPen)',
+    description: 'Emergency treatment of severe allergic reactions.',
+    price: 199.99,
+    isEssential: true,
+    precautions: 'Prescription required. Seek immediate medical attention after use.'
+  }
+];
+// -------------------------------------
+
+
 export default function HomeScreen() {
+  const navigation = useNavigation();
   // State declarations
   const [emergencyDrugs, setEmergencyDrugs] = useState<Drug[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAllEmergency, setShowAllEmergency] = useState(false);
+  const [selectedDrug, setSelectedDrug] = useState<Drug | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  // Fetch drugs from API
+  // Fetch drugs (using mock data for now)
   useEffect(() => {
     fetchEmergencyDrugs();
   }, []);
@@ -36,46 +102,8 @@ export default function HomeScreen() {
   const fetchEmergencyDrugs = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with actual OpenFDA API call
-      const mockDrugs: Drug[] = [
-        {
-          id: '1',
-          name: 'Aspirin',
-          description: 'For heart attack symptoms',
-          price: 8.99,
-          isEssential: true
-        },
-        {
-          id: '2', 
-          name: 'Paracetamol',
-          description: 'Headache & fever relief',
-          price: 5.99,
-          isEssential: true
-        },
-        {
-          id: '3',
-          name: 'Ibuprofen',
-          description: 'Pain & inflammation relief',
-          price: 7.99,
-          isEssential: true
-        },
-        {
-          id: '4',
-          name: 'Bandages',
-          description: 'Wound dressing kit',
-          price: 6.99,
-          isEssential: true
-        },
-        {
-          id: '5',
-          name: 'Antiseptic Cream',
-          description: 'Infection prevention',
-          price: 7.49,
-          isEssential: true
-        }
-      ];
-      
-      setEmergencyDrugs(mockDrugs);
+      // Use the new, fuller mock data list
+      setEmergencyDrugs(MOCK_EMERGENCY_DRUGS);
     } catch (error) {
       console.error('Failed to fetch drugs:', error);
     } finally {
@@ -83,19 +111,38 @@ export default function HomeScreen() {
     }
   };
 
-  const displayedEmergencyDrugs = showAllEmergency ? emergencyDrugs : emergencyDrugs.slice(0, 3);
+  const handleDrugPress = (drug: Drug) => {
+    setSelectedDrug(drug);
+    setModalVisible(true);
+  };
 
+  const handleAddToCart = (drug: Drug) => {
+    Alert.alert('Added to Cart', `${drug.name} has been added to your cart.`);
+    // TODO: Implement actual cart functionality
+  };
+
+  // Renders a single emergency drug card
   const renderEmergencyItem = ({ item }: { item: Drug }) => (
-    <TouchableOpacity style={styles.emergencyItem}>
+    <TouchableOpacity
+      style={styles.emergencyItem} // Width is set here to allow side-by-side scrolling
+      onPress={() => handleDrugPress(item)}
+    >
       <View style={styles.itemImage}>
-        <Ionicons name="medkit" size={32} color="#4CAF50" />
+        <Ionicons name="medical" size={32} color="#4CAF50" />
       </View>
-      <Text style={styles.itemName}>{item.name}</Text>
-      <Text style={styles.itemDescription}>{item.description}</Text>
-      <Text style={styles.itemPrice}>${item.price}</Text>
-      <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText}>Add to Cart</Text>
-      </TouchableOpacity>
+      <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
+      <Text style={styles.itemDescription} numberOfLines={1}>
+        {item.description}
+      </Text>
+      <View style={styles.priceCartRow}>
+        <Text style={styles.itemPrice}>₹{item.price}</Text>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => handleAddToCart(item)}
+        >
+          <Text style={styles.addButtonText}>Add</Text>
+        </TouchableOpacity>
+      </View>
     </TouchableOpacity>
   );
 
@@ -114,42 +161,32 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header with Search and Cart */}
       <View style={styles.header}>
-        <View style={styles.searchContainer}>
+        <TouchableOpacity
+          style={styles.searchContainer}
+          onPress={() => navigation.navigate('Search' as never)}
+        >
           <Ionicons name="search" size={20} color="#666" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search medications..."
-          />
-        </View>
+          <Text style={styles.searchPlaceholder}>Search medications...</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.cartButton}>
           <Ionicons name="cart-outline" size={24} color="#333" />
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content}>
-        {/* Emergency Must-Have Items Section */}
+        {/* Emergency Must-Have Items Section - NOW HORIZONTAL */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Emergency Must-Haves</Text>
-            {emergencyDrugs.length > 3 && (
-              <TouchableOpacity 
-                onPress={() => setShowAllEmergency(!showAllEmergency)}
-                style={styles.viewMoreButton}
-              >
-                <Text style={styles.viewMoreText}>
-                  {showAllEmergency ? 'View Less' : 'View More'}
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
-          
+          <Text style={styles.sectionTitle}>Emergency Must-Haves</Text>
+
+          {/* Key Change: FlatList is now horizontal */}
           <FlatList
-            data={displayedEmergencyDrugs}
+            data={emergencyDrugs}
             renderItem={renderEmergencyItem}
             keyExtractor={item => item.id}
-            numColumns={2}
-            scrollEnabled={false}
-            columnWrapperStyle={styles.emergencyGrid}
+            horizontal={true} // Enable horizontal scrolling
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.emergencyGrid}
+            key={"horizontal-emergency-list"} // <--- ADD THIS KEY
           />
         </View>
 
@@ -161,9 +198,70 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Drug Details Modal (No changes needed here) */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            {selectedDrug && (
+              <>
+                <View style={styles.modalHeader}>
+                  <View style={styles.modalImage}>
+                    <Ionicons name="medical" size={48} color="#4CAF50" />
+                  </View>
+                  <Text style={styles.modalTitle}>{selectedDrug.name}</Text>
+                </View>
+
+                <View style={styles.modalSection}>
+                  <Text style={styles.modalSectionTitle}>Description</Text>
+                  <Text style={styles.modalText}>{selectedDrug.description}</Text>
+                </View>
+
+                <View style={styles.modalSection}>
+                  <Text style={styles.modalSectionTitle}>Precautions</Text>
+                  <Text style={styles.modalText}>
+                    {selectedDrug.precautions || 'Consult your doctor before use. Keep out of reach of children.'}
+                  </Text>
+                </View>
+
+                <View style={styles.modalSection}>
+                  <Text style={styles.modalSectionTitle}>Price</Text>
+                  <Text style={styles.modalPrice}>₹{selectedDrug.price}</Text>
+                </View>
+
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.cancelButton]}
+                    onPress={() => setModalVisible(false)}
+                  >
+                    <Text style={styles.cancelButtonText}>Close</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.addCartButton]}
+                    onPress={() => {
+                      handleAddToCart(selectedDrug);
+                      setModalVisible(false);
+                    }}
+                  >
+                    <Text style={styles.addCartButtonText}>Add to Cart</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
+
+// --- Stylesheet ---
+// (Only relevant styles were modified to achieve the horizontal effect)
 
 const styles = StyleSheet.create({
   container: {
@@ -183,6 +281,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
+  searchPlaceholder: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#666',
+  },
   searchContainer: {
     flex: 1,
     flexDirection: 'row',
@@ -198,6 +302,13 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 16,
   },
+  priceCartRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginTop: 8,
+  },
   cartButton: {
     padding: 5,
   },
@@ -206,37 +317,31 @@ const styles = StyleSheet.create({
   },
   section: {
     padding: 20,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
+    paddingBottom: 0, // Adjusted padding
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 15,
     color: '#333',
   },
-  viewMoreButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  viewMoreText: {
-    color: '#4CAF50',
-    fontWeight: '600',
-  },
+  // --- MODIFIED STYLE FOR HORIZONTAL SCROLLING ---
   emergencyGrid: {
-    justifyContent: 'space-between',
+    paddingRight: 20, // Adds padding to the end of the horizontal list
   },
   emergencyItem: {
-    width: '48%',
+    // Crucial: Set a fixed width smaller than the screen width
+    width: 150, 
     backgroundColor: '#f9f9f9',
-    padding: 15,
+    padding: 10,
     borderRadius: 12,
-    marginBottom: 15,
+    marginRight: 15, // Space between cards
+    marginBottom: 20, // Pushes items up from the bottom of the section
     alignItems: 'center',
+    height: 220, // Fixed height to keep cards uniform
   },
+  // ------------------------------------------------
+
   itemImage: {
     width: 60,
     height: 60,
@@ -247,22 +352,24 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   itemName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 5,
+    marginBottom: 4,
+    lineHeight: 16,
+    height: 32, // Fixed height for 2 lines of text
   },
   itemDescription: {
     fontSize: 12,
     color: '#666',
     textAlign: 'center',
     marginBottom: 8,
+    lineHeight: 14,
   },
   itemPrice: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#4CAF50',
-    marginBottom: 10,
   },
   addButton: {
     backgroundColor: '#4CAF50',
@@ -280,9 +387,92 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     borderRadius: 12,
     alignItems: 'center',
+    marginHorizontal: 20,
+    marginBottom: 20,
   },
   placeholderText: {
     color: '#666',
     fontSize: 14,
+  },
+  // Modal Styles (Unchanged)
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalImage: {
+    width: 80,
+    height: 80,
+    backgroundColor: '#E8F5E8',
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#333',
+  },
+  modalSection: {
+    marginBottom: 15,
+  },
+  modalSectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  modalText: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+  },
+  modalPrice: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  cancelButton: {
+    backgroundColor: '#f5f5f5',
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  cancelButtonText: {
+    color: '#666',
+    fontWeight: 'bold',
+  },
+  addCartButton: {
+    backgroundColor: '#4CAF50',
+  },
+  addCartButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });

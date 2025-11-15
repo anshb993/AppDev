@@ -1,7 +1,6 @@
 // D:\temp\Pharmer\src\screens\SignUpScreen.tsx
 import { getApps } from '@react-native-firebase/app';
 import { createUserWithEmailAndPassword, getAuth } from '@react-native-firebase/auth';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -15,7 +14,7 @@ export default function SignUpScreen({ navigation }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const handleGoogleSignIn = async () => {
-    await GoogleSignin.signOut();
+    // await GoogleSignin.signOut(); uncomment when demostrating
     await GoogleAuth(); // your existing function
     navigation.navigate("Home");
   };
