@@ -23,7 +23,7 @@ export default function SignUpScreen({ navigation }: Props) {
     try {
       const auth = getAuth();
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      Alert.alert("Success", "Acount created successfully!");
+      Alert.alert("Success", "Account created successfully!");
       navigation.navigate("Home"); 
     } catch (error: any) {
       console.error("Sign Up Failed:", error.code, error.message);
