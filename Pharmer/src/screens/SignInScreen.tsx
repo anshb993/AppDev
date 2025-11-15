@@ -15,6 +15,7 @@ export default function SignInScreen({ navigation }: Props) {
       const auth = getAuth();
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       Alert.alert("Success", `Logged in as ${userCredential.user.email}`);
+      navigation.navigate("Home");
       console.log('User signed in:', userCredential.user.uid);
       return userCredential.user;
     } catch (error: any) {

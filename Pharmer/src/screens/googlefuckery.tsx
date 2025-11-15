@@ -14,9 +14,11 @@ export const GoogleAuth = async () => {
     if (!idToken) throw new Error('No ID token returned.');
     const credential = GoogleAuthProvider.credential(idToken);
     const userCredential = await signInWithCredential(getAuth(), credential);
-
+    
     console.log('Signed in:', userCredential.user.uid);
+    return true;
   } catch (err) {
     console.error(err);
+    return false;
   }
 };

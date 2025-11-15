@@ -17,6 +17,7 @@ export default function SignUpScreen({ navigation }: Props) {
   const handleGoogleSignIn = async () => {
     await GoogleSignin.signOut();
     await GoogleAuth(); // your existing function
+    navigation.navigate("Home");
   };
 
   const handleEmailSignUp = async () => {
@@ -24,6 +25,7 @@ export default function SignUpScreen({ navigation }: Props) {
       const auth = getAuth();
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       Alert.alert("Success", "Acount created successfully!");
+      navigation.navigate("Home"); 
     } catch (error: any) {
       console.error("Sign Up Failed:", error.code, error.message);
 
