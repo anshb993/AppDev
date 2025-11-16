@@ -14,6 +14,8 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import AnimatedQuote from '../animatedThiing/quote';
+import { useCart } from '../cart/contents';
 // Types for our drug data
 interface Drug {
   id: string;
@@ -22,6 +24,17 @@ interface Drug {
   price: number;
   isEssential: boolean;
   precautions?: string;
+}
+interface OrderItem {
+  name: string;
+  quantity: number;
+}
+
+interface Order {
+  id: string;
+  date: Date;
+  items: OrderItem[];
+  total: number;
 }
 
 // --- FULL MOCK EMERGENCY DRUGS LIST ---
@@ -88,6 +101,7 @@ const MOCK_EMERGENCY_DRUGS: Drug[] = [
 
 export default function HomeScreen() {
   const navigation = useNavigation();
+  const { addToCart, cartItems } = useCart();
   // State declarations
   const [emergencyDrugs, setEmergencyDrugs] = useState<Drug[]>([]);
   const [loading, setLoading] = useState(true);
@@ -117,10 +131,73 @@ export default function HomeScreen() {
   };
 
   const handleAddToCart = (drug: Drug) => {
+    addToCart({ id: drug.id, name: drug.name, price: drug.price });
     Alert.alert('Added to Cart', `${drug.name} has been added to your cart.`);
-    // TODO: Implement actual cart functionality
   };
+  const appQuotes = [
+    "Your essential pharmacy, delivered fast.",
+    "Quality care, right at your doorstep.",
+    "Order Medicines in Minutes",
+    "Health and convenience, hand in hand.",
+    "Your Health, Delivered Fast",
+    "Reliable medication, when you need it most.",
+  ];
 
+  const MOCK_PAST_ORDERS: Order[] = [
+    {
+      id: 'ORD1001',
+      date: new Date(2025, 10, 10), // November 10, 2025
+      items: [{ name: 'Ibuprofen Tablets', quantity: 1 }, { name: 'Antiseptic Cream', quantity: 2 }],
+      total: 16.99,
+    },
+    {
+      id: 'ORD1002',
+      date: new Date(2025, 10, 5), // November 5, 2025
+      items: [{ name: 'Low Dose Aspirin', quantity: 1 }],
+      total: 9.99,
+    },
+  ];
+
+  const [pastOrders, setPastOrders] = useState<Order[]>(MOCK_PAST_ORDERS);
+  const renderEmptyOrders = () => (
+    <View style={styles.pastOrdersEmpty}>
+      <Ionicons name="receipt-outline" size={60} color="#ccc" />
+      <Text style={styles.emptyOrderTitle}>You haven&apos;t ordered yet.</Text>
+      <Text style={styles.emptyOrderSubtitle}>Let&apos;s find your essentials.</Text>
+      <TouchableOpacity
+        style={styles.browseButton}
+        onPress={() => navigation.navigate('Search' as never)}
+      >
+        <Text style={styles.browseButtonText}>Browse Essentials</Text>
+      </TouchableOpacity>
+    </View>
+  );
+  const renderRecentOrder = (order: Order) => {
+    const formattedDate = order.date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+
+    const itemSummary = order.items.map(i => `${i.name} (${i.quantity})`).join(', ');
+
+    return (
+      <TouchableOpacity
+        style={styles.pastOrdersRecent}
+        onPress={() => Alert.alert('Order Details', `Order ID: ${order.id}\nItems: ${itemSummary}`)}
+      >
+        <View style={styles.recentHeader}>
+          <Ionicons name="time-outline" size={24} color="#666" />
+          <Text style={styles.recentDate}>{formattedDate}</Text>
+          <Text style={styles.recentTotal}>{`₹${order.total.toFixed(2)}`}</Text>
+        </View>
+        <Text style={styles.recentItems} numberOfLines={1}>
+          {itemSummary}
+        </Text>
+        <Text style={styles.viewDetailsText}>View Details</Text>
+      </TouchableOpacity>
+    );
+  };
   // Renders a single emergency drug card
   const renderEmergencyItem = ({ item }: { item: Drug }) => (
     <TouchableOpacity
@@ -135,7 +212,7 @@ export default function HomeScreen() {
         {item.description}
       </Text>
       <View style={styles.priceCartRow}>
-        <Text style={styles.itemPrice}>₹{item.price}</Text>
+        <Text style={styles.itemPrice}>{`₹${item.price}`}</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => handleAddToCart(item)}
@@ -168,12 +245,20 @@ export default function HomeScreen() {
           <Ionicons name="search" size={20} color="#666" />
           <Text style={styles.searchPlaceholder}>Search medications...</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.cartButton}>
+        <TouchableOpacity
+          style={styles.cartButton}
+          onPress={() => navigation.navigate('Cart' as never)}>
           <Ionicons name="cart-outline" size={24} color="#333" />
+          {cartItems.length > 0 && (
+            <View style={styles.cartBadge}>
+              <Text style={styles.cartBadgeText}>{cartItems.length}</Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content}>
+        <AnimatedQuote quotes={appQuotes} intervalMs={10000} />
         {/* Emergency Must-Have Items Section - NOW HORIZONTAL */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Emergency Must-Haves</Text>
@@ -183,7 +268,7 @@ export default function HomeScreen() {
             data={emergencyDrugs}
             renderItem={renderEmergencyItem}
             keyExtractor={item => item.id}
-            horizontal={true} // Enable horizontal scrolling
+            horizontal={true}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.emergencyGrid}
             key={"horizontal-emergency-list"} // <--- ADD THIS KEY
@@ -193,9 +278,8 @@ export default function HomeScreen() {
         {/* Past Orders Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Past Orders</Text>
-          <View style={styles.pastOrders}>
-            <Text style={styles.placeholderText}>Your previous orders will appear here</Text>
-          </View>
+
+          {pastOrders.length > 0 ? renderRecentOrder(pastOrders[0]) : renderEmptyOrders() }
         </View>
       </ScrollView>
 
@@ -231,7 +315,7 @@ export default function HomeScreen() {
 
                 <View style={styles.modalSection}>
                   <Text style={styles.modalSectionTitle}>Price</Text>
-                  <Text style={styles.modalPrice}>₹{selectedDrug.price}</Text>
+                  <Text style={styles.modalPrice}>{`₹${selectedDrug.price}`}</Text>
                 </View>
 
                 <View style={styles.modalButtons}>
@@ -309,9 +393,6 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 8,
   },
-  cartButton: {
-    padding: 5,
-  },
   content: {
     flex: 1,
   },
@@ -331,7 +412,7 @@ const styles = StyleSheet.create({
   },
   emergencyItem: {
     // Crucial: Set a fixed width smaller than the screen width
-    width: 150, 
+    width: 150,
     backgroundColor: '#f9f9f9',
     padding: 10,
     borderRadius: 12,
@@ -371,28 +452,110 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4CAF50',
   },
+  pastOrdersEmpty: {
+    padding: 30,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    alignItems: 'center',
+    marginHorizontal: 0, // Keep section padding
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#eee',
+  },
+  emptyOrderTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginTop: 15,
+  },
+  emptyOrderSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 5,
+    marginBottom: 20,
+  },
+  browseButton: {
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 25,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  browseButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+
+  // --- STYLES FOR RECENT ORDER PREVIEW ---
+  pastOrdersRecent: {
+    padding: 15,
+    backgroundColor: '#e8f5e8', // Light green background
+    borderRadius: 12,
+    borderLeftWidth: 5,
+    borderLeftColor: '#4CAF50',
+    marginBottom: 20,
+  },
+  recentHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  recentDate: {
+    fontSize: 14,
+    color: '#666',
+    marginLeft: 8,
+    flex: 1,
+  },
+  recentTotal: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+  },
+  recentItems: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 10,
+  },
+  viewDetailsText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+    alignSelf: 'flex-start',
+  },
   addButton: {
     backgroundColor: '#4CAF50',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
   },
+  cartButton: {
+    padding: 5,
+    position: 'relative', //  REQUIRED: Sets up the coordinate system for the badge
+    marginRight: 10,
+  },
+
+  cartBadge: {
+    position: 'absolute', //  REQUIRED: Allows precise placement
+    right: 0,
+    top: 0,
+    backgroundColor: 'red', // Or any color you prefer
+    borderRadius: 10,
+    minWidth: 18, // Ensures small numbers like are visible
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  cartBadgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
   addButtonText: {
     color: 'white',
     fontSize: 12,
     fontWeight: 'bold',
-  },
-  pastOrders: {
-    padding: 20,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 12,
-    alignItems: 'center',
-    marginHorizontal: 20,
-    marginBottom: 20,
-  },
-  placeholderText: {
-    color: '#666',
-    fontSize: 14,
   },
   // Modal Styles (Unchanged)
   modalContainer: {
@@ -474,5 +637,5 @@ const styles = StyleSheet.create({
   addCartButtonText: {
     color: 'white',
     fontWeight: 'bold',
-  },
+  }
 });

@@ -81,7 +81,7 @@ export default function SignInScreen({ navigation }: Props) {
         style={{ marginTop: 15 }}
       >
         <Text style={{ textAlign: "center" }}>
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Text style={{ fontWeight: "600" }}>Sign up</Text>
         </Text>
       </TouchableOpacity>

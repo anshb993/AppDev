@@ -5,27 +5,30 @@ import SignUpScreen from "../../src/screens/SignUpScreen";
 import GoogleAuth from "../../src/screens/googleAuth";
 import HomeScreen from '../HomeScreen/HomeScreen';
 import SearchScreen from "../HomeScreen/SearchBox";
+import { CartProvider } from '../cart/contents';
+import CartScreen from "../cart/screen";
 import AboutScreen from "../screens/AboutScreen";
 import { RootStackParamList } from "../types/navigation";
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
-
 
 export default function App() {
   return (
-    <Stack.Navigator initialRouteName="SignUp" 
-      screenOptions={{ headerShown: false }}
-    >
+    <CartProvider>
+      <Stack.Navigator initialRouteName="SignUp"
+        screenOptions={{ headerShown: false }}
+      >
 
-      <Stack.Screen name="SignUp" component={SignUpScreen} />
-      <Stack.Screen name="SignIn" component={SignInScreen} />
-      <Stack.Screen name="GoogleAuth" component={GoogleAuth} />
-      <Stack.Screen name="About" component={AboutScreen} />
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Search" component={SearchScreen} />
+        <Stack.Screen name="SignUp" component={SignUpScreen} />
+        <Stack.Screen name="SignIn" component={SignInScreen} />
+        <Stack.Screen name="GoogleAuth" component={GoogleAuth} />
+        <Stack.Screen name="About" component={AboutScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Search" component={SearchScreen} />
+        <Stack.Screen name="Cart" component={CartScreen} />
 
+      </Stack.Navigator>
+    </CartProvider>
 
-    </Stack.Navigator>
-    
   );
 }

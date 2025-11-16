@@ -6,4 +6,5 @@ export type RootStackParamList = {
   GoogleAuth: undefined;
   Home: undefined;
   Search: undefined;
+  Cart: undefined;
 };

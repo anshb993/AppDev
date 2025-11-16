@@ -3,16 +3,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Keyboard,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    Keyboard,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 // Assuming you have imported your API service here:
@@ -153,7 +153,7 @@ export default function SearchScreen() {
                 <Text style={styles.drugDescription} numberOfLines={2}>
                     {item.description}
                 </Text>
-                <Text style={styles.drugPrice}>₹{item.price}</Text>
+                <Text style={styles.drugPrice}>{`₹${item.price}`}</Text>
             </View>
             <TouchableOpacity
                 style={styles.addButton}
