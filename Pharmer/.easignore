@@ -1,0 +1,25 @@
+Ignore common developer and cache folders
+
+node_modules/
+.expo/
+.vscode/
+
+Ignore local build and cache artifacts
+
+android/build/
+ios/build/
+.git/
+.cache/
+
+Ignore large log files and temporary artifacts
+
+.log
+npm-debug.log
+yarn-error.log*
+.DS_Store
+
+Include only necessary files, especially if you have local native folders
+
+If your project is using local native folders (android/ and ios/), you should ensure
+
+any temporary build output directories within them are ignored.

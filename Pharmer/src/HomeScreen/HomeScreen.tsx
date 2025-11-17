@@ -1,5 +1,7 @@
 // src/screens/HomeScreen.tsx
 import { Ionicons } from '@expo/vector-icons';
+// @ts-ignore
+import { getAuth, onAuthStateChanged, User } from '@react-native-firebase/auth'; // 1. IMPORT AUTH
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
@@ -107,6 +109,24 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [selectedDrug, setSelectedDrug] = useState<Drug | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const subscriber = onAuthStateChanged(auth, (user: User | null) => {
+      if (user) {
+        // Check if the user is signed in anonymously
+        setIsGuest(user.isAnonymous);
+      } else {
+        // If no user, treat as a signed-out state (can also be treated as guest if that's the default flow)
+        setIsGuest(false);
+      }
+    });
+
+    // Clean up the listener when the component unmounts
+    return subscriber;
+  }, []);
+
 
   // Fetch drugs (using mock data for now)
   useEffect(() => {
@@ -131,6 +151,26 @@ export default function HomeScreen() {
   };
 
   const handleAddToCart = (drug: Drug) => {
+    // 4. GUARD CLAUSE for guest users
+    if (isGuest) {
+      Alert.alert(
+        "Action Required",
+        "Please sign in or create an account to use the cart and place orders.",
+        [
+          {
+            text: "Later",
+            style: "cancel"
+          },
+          {
+            text: "Sign Up/Sign In",
+            onPress: () => navigation.navigate('SignUp' as never) // Navigate to the sign up screen
+          }
+        ]
+      );
+      return; // STOP execution for guest users
+    }
+
+    // Only runs if the user is NOT a guest
     addToCart({ id: drug.id, name: drug.name, price: drug.price });
     Alert.alert('Added to Cart', `${drug.name} has been added to your cart.`);
   };
@@ -279,7 +319,7 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Past Orders</Text>
 
-          {pastOrders.length > 0 ? renderRecentOrder(pastOrders[0]) : renderEmptyOrders() }
+          {pastOrders.length > 0 ? renderRecentOrder(pastOrders[0]) : renderEmptyOrders()}
         </View>
       </ScrollView>
 

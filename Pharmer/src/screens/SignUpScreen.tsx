@@ -1,6 +1,6 @@
 // D:\temp\Pharmer\src\screens\SignUpScreen.tsx
 import { getApps } from '@react-native-firebase/app';
-import { createUserWithEmailAndPassword, getAuth } from '@react-native-firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, signInAnonymously } from '@react-native-firebase/auth';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -39,6 +39,19 @@ export default function SignUpScreen({ navigation }: Props) {
         }
 
         Alert.alert("Sign Up Error", message);
+    }
+  };
+  const handleGuestLogin = async () => { // <-- New Handler for Guest Login
+    try {
+      const auth = getAuth();
+      const userCredential = await signInAnonymously(auth);
+      // The user is signed in, and their state (isAnonymous: true) can be used
+      // to restrict cart functionality later in the app.
+      navigation.navigate("Home");
+    } catch (error: any) {
+      console.error("Guest Sign In Failed:", error.code, error.message);
+      // NOTE: Using custom modal/message box is recommended over Alert
+      Alert.alert("Error", "Could not sign in as a guest. Please try again.");
     }
   };
   return (
@@ -120,6 +133,21 @@ export default function SignUpScreen({ navigation }: Props) {
         >
           <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
             Continue
+          </Text>
+        </TouchableOpacity>
+
+                {/* CONTINUE AS GUEST BUTTON */}
+        <TouchableOpacity
+          style={{
+            backgroundColor: "#ddd", // Neutral color for guest login
+            marginTop: 5,
+            padding: 15,
+            borderRadius: 6,
+          }}
+          onPress={handleGuestLogin} // <-- New handler
+        >
+          <Text style={{ color: "#333", textAlign: "center", fontWeight: "bold" }}>
+            Continue as Guest
           </Text>
         </TouchableOpacity>
       </View>
