@@ -97,6 +97,7 @@ export default function SignUpScreen({ navigation }: Props) {
         {/* EMAIL INPUT */}
         <TextInput
           placeholder="Email"
+          placeholderTextColor="#000000ff"
           value={email}
           onChangeText={setEmail}
           style={{
@@ -110,6 +111,7 @@ export default function SignUpScreen({ navigation }: Props) {
         {/* PASSWORD INPUT */}
         <TextInput
           placeholder="Password"
+          placeholderTextColor="#000000ff"
           secureTextEntry
           value={password}
           onChangeText={setPassword}
